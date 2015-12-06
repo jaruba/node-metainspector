@@ -2,7 +2,9 @@ var util = require('util'),
 	request = require('request'),
 	events = require('events'),
 	cheerio = require('cheerio'),
-	URI = require('uri-js');
+	URI = require('uri-js'),
+	pURI = require('url');
+	
 
 var debug;
 
@@ -34,6 +36,8 @@ var MetaInspector = function(url, options){
 	
 	//some urls are timing out after one minute, hence need to specify a reasoable default timeout
 	this.timeout = this.options.timeout || 20000; //Timeout in ms
+  
+  //this.removeAllListeners();
 };
 
 //MetaInspector.prototype = new events.EventEmitter();
@@ -47,7 +51,7 @@ MetaInspector.prototype.getTitle = function()
 
 	if(this.title === undefined)
 	{
-		this.title = this.parsedDocument('head > title').text();
+		this.title = this.parsedDocument('title').text();
 	}
 
 	return this;
@@ -73,8 +77,65 @@ MetaInspector.prototype.getLinks = function()
 
 	if(!this.links)
 	{
-		this.links = this.parsedDocument('a').map(function(i ,elem){
-			return _this.parsedDocument(this).attr('href');
+		this.links = {};
+		this.links.absolute = {};
+		this.links.relative = [];
+		this.links.anchors = [];
+		this.iframes = [];
+		this.torrents = [];
+		
+		this.parsedDocument('iframe').map(function(i ,elem){
+			href = _this.parsedDocument(this).attr('src');
+			if (href) {
+				_this.iframes.push(href);
+			}
+		});
+		
+		this.parsedDocument('a').map(function(i ,elem){
+			href = _this.parsedDocument(this).attr('href');
+			if (href) {
+				parserData = URI.parse(href);
+				if (parserData.reference == 'absolute') {
+					if (parserData.scheme) {
+						parserData.scheme = parserData.scheme.replace(':','');
+						if (!_this.links.absolute[parserData.scheme]) _this.links.absolute[parserData.scheme] = [];
+						if (_this.links.absolute[parserData.scheme].indexOf(href) == -1) {
+							_this.links.absolute[parserData.scheme].push(href);
+							if (parserData.scheme == 'magnet') {
+								pData = pURI.parse(href,true).query;
+								magnetParser = {};
+								magnetParser.href = href;
+								magnetParser.infohash = href.match(new RegExp("([0-9A-Fa-f]){40}", "g"))[0];
+
+								if (pData.dn) magnetParser.title = pData.dn;
+								if (pData.tr) magnetParser.trackers = pData.tr;
+
+								_this.torrents.push(magnetParser);
+							}
+						}
+					}
+				} else {
+					if (href.substr(0,2) == '//') {
+						if (_this.scheme) {
+							href = _this.scheme+':'+href;
+							if (!_this.links.absolute[_this.scheme]) _this.links.absolute[_this.scheme] = [];
+							if (_this.links.absolute[_this.scheme].indexOf(href) == -1) {
+								_this.links.absolute[_this.scheme].push(href);
+							}
+						}
+					} else if (href.length > 1) {
+						if (href.indexOf('#') > -1) {
+							if (_this.links.anchors.indexOf(href) == -1) {
+								_this.links.anchors.push(href);
+							}
+						} else {
+							if (_this.links.relative.indexOf(href) == -1) {
+								_this.links.relative.push(href);
+							}
+						}
+					}
+				}
+			}
 		});
 	}
 
@@ -244,7 +305,7 @@ MetaInspector.prototype.fetch = function(){
 	var _this = this;
 	var totalChunks = 0;
 
-	var r = request({uri : this.url, gzip: true, maxRedirects: this.maxRedirects, timeout: this.timeout}, function(error, response, body){
+	var r = request({uri : this.url, gzip: true, maxRedirects: this.maxRedirects, timeout: this.timeout, headers: { "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.99 Safari/537.36" }}, function(error, response, body){
 		if(!error && response.statusCode === 200){
 			_this.document = body;
 			_this.parsedDocument = cheerio.load(body);

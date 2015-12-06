@@ -26,19 +26,11 @@ client.ogTitle      		# opengraph title
 
 ```
 
-### Options
-
-```
-timeout - Defines the time Metainspector will wait for the url to respond in ms
-maxRedirects - Specifies the number of redirects Metainspector will follow
-limit - The limit in the number of bytes Metainspector will download when querying a site
-```
-
 ## Usage
 
 ```javascript
 var MetaInspector = require('node-metainspector');
-var client = new MetaInspector("http://www.google.com", { timeout: 5000 });
+var client = new MetaInspector("http://www.google.com", {});
 
 client.on("fetch", function(){
     console.log("Description: " + client.description);

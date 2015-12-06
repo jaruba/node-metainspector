@@ -3,8 +3,15 @@
   "description": "Npm package for web scraping purposes. You give it an URL, and it lets you easily get its title, links, images, description, keywords, meta tags",
   "version": "1.1.0",
   "homepage": "http://github.com/gabceb/node-metainspector",
-  "repository": "git://github.com/gabceb/node-metainspector.git",
-  "author": "Gabriel Cebrian <gabceb@gmail.com> (http://about.me/gabceb)",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gabceb/node-metainspector.git"
+  },
+  "author": {
+    "name": "Gabriel Cebrian",
+    "email": "gabceb@gmail.com",
+    "url": "http://about.me/gabceb"
+  },
   "main": "./index.js",
   "dependencies": {
     "request": "~2.58.0",
@@ -12,11 +19,11 @@
     "uri-js": "~2.1.0"
   },
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-jshint": "~0.7.2",
-    "mocha": "^2.2.5",
+    "mocha": "*",
+    "should": "*",
     "node-fakeweb": "0.0.9",
-    "should": "^7.0.1"
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.7.2"
   },
   "scripts": {
     "test": "make test"
@@ -29,5 +36,29 @@
       "type": "MIT",
       "url": "http://github.com/gabceb/node-metainspector/raw/master/LICENSE"
     }
-  ]
+  ],
+  "gitHead": "4a1e04fffcac350d383e88fb7a21d854e33f289e",
+  "bugs": {
+    "url": "https://github.com/gabceb/node-metainspector/issues"
+  },
+  "_id": "node-metainspector@1.1.0",
+  "_shasum": "a1423c8da921095264ea25d894bca63b28ead957",
+  "_from": "node-metainspector@",
+  "_npmVersion": "1.4.28",
+  "_npmUser": {
+    "name": "gabceb",
+    "email": "gabceb@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "gabceb",
+      "email": "gabceb@gmail.com"
+    }
+  ],
+  "dist": {
+    "shasum": "a1423c8da921095264ea25d894bca63b28ead957",
+    "tarball": "http://registry.npmjs.org/node-metainspector/-/node-metainspector-1.1.0.tgz"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/node-metainspector/-/node-metainspector-1.1.0.tgz"
 }
